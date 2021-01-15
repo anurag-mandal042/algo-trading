@@ -51,7 +51,7 @@ def getDF(instrument_id, date, min_df_len=370, printdf=False):
     if df.empty or len(df) < min_df_len:
         invalid_query = "\n{},{},empty or df len ({}) is less than 370,{},{}".format(
             instrument_id, query, len(df), datetime.date.today(), datetime.datetime.now().time())
-        f = open("invalid_queries_{}.txt".format(__name__), "a")
+        f = open("invalid_queries_{}.txt".format("stratTwogetDF"), "a")
         f.write(invalid_query)
         f.close()
         return None

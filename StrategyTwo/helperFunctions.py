@@ -25,7 +25,7 @@ def getDF(instrument_id, date, min_df_len=370, printdf=False):
         instrument_id: to fetch data from mysql
         date: to fetch data from mysql
         min_df_len: it is a parameter to check validity of df returned from mysql, if len(df) < min_df_len then None is returned
-        printdf: to print df returned from mysql        
+        printdf: to print df returned from mysql
         optional-parameters:
             min_df_len *default=370
             printdf *default=false
@@ -322,7 +322,7 @@ def convertToFinalCSV(filename):
             }
             temp_df = dictToDF(temp_dict)
             temp_records = pd.concat([temp_records, temp_df])
-
+    temp_records = addAnalysisColumns(temp_records)
     temp_records.to_csv("final_{}".format(filename))
 
 
@@ -382,14 +382,6 @@ def cummulativeVolume(trading_days, start_date, end_date):
 
     volumes = []
     invalid = []
-    # [1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 17, 19, 21, 22, 24, 26, 27, 28, 31, 32, 34, 35, 37, 39, 40, 43, 45, 46, 48, 50, 51, 52, 53, 54, 56, 58, 59, 60, 61, 62, 63, 64, 66, 67, 68, 69, 70, 71, 72, 73, 76, 77, 78, 79, 80, 82, 83, 84, 85, 87, 88, 89, 91, 92, 93, 95, 96, 97, 98, 99, 100, 102, 103, 104, 105, 107, 108,
-    #  109, 111, 113, 114, 115, 116, 117, 118, 120, 121, 123, 125, 126, 127, 128, 129, 131, 132, 133, 134, 135, 137, 138, 139, 140, 141, 142, 145, 147, 149, 150, 152,
-    #  153, 154, 156, 157, 158, 161, 162, 163, 167, 169, 170, 171, 173, 175, 176, 178, 180, 181, 183, 184, 185, 186, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197,
-    #  198, 200, 202, 203, 204, 205, 206, 207, 208, 210, 211, 212, 213, 214, 215, 217, 218, 219, 220, 221, 223, 227, 229, 230, 231, 232, 233, 234, 235, 237, 238, 239,
-    #  241, 242, 244, 245, 246, 247, 251, 252, 254, 255, 258, 259, 262, 263, 264, 265, 266, 267, 268, 269, 270, 272, 273, 276, 277, 278, 280, 281, 283, 284, 285, 286,
-    #  287, 288, 289, 291, 292, 293, 294, 296, 297, 300, 301, 302, 303, 306, 307, 310, 311, 312, 313, 314, 315, 317, 319, 320, 321, 322, 323, 324, 327, 331, 332, 333,
-    #  334, 335, 336, 337, 338, 339, 340, 341, 342, 345, 346, 349, 350, 356, 358, 359, 360, 362, 363, 366, 367, 368, 371, 373, 374, 377, 378, 380, 381, 382, 383, 385,
-    #  387, 388, 391, 392, 394, 396, 397, 398, 399, 400, 402, 404, 406, 407, 408, 409, 410, 411, 413]
     name = ""
     # calculate past_30_days_volume
     print("calculating past_30_days_volume")
@@ -493,18 +485,129 @@ def topThreeStocks(date, top=5):
     return None
 
 
+def getCustomDF(start_date, end_date, start_time, end_time, instrument_id, min_df_len=370, printdf=False):
+    '''
+    Input Parameters:
+        instrument_id: to fetch data from mysql
+        date: to fetch data from mysql
+        min_df_len: it is a parameter to check validity of df returned from mysql, if len(df) < min_df_len then None is returned
+        printdf: to print df returned from mysql
+        optional-parameters:
+            min_df_len *default=370
+            printdf *default=false
+    Returns df
+    '''
+    # enter your server IP address/domain name
+    HOST = "164.52.207.114"  # or "domain.com"
+    # database name, if you want just to connect to MySQL server, leave it empty
+    DATABASE = "stock_production"
+    # this is the user you create
+    USER = "stock"
+    # user password
+    PASSWORD = "stockdata@data"
+    # connect to MySQL server
+    db_connection = mysql.connect(host=HOST, user=USER, password=PASSWORD)
+    print("Connected to:", db_connection.get_server_info())
+    cursor = db_connection.cursor()  # get the cursor
+    cursor.execute("use stock_production;")
+
+    query = "SELECT * FROM instrument_details where instrument_id = {} and date(ins_date) >= '{}' and date(ins_date) <= '{}' and time(ins_date) >= '{}'  and time(ins_date) <= '{}' ".format(
+        instrument_id, start_date, end_date,  start_time, end_time)
+    cursor.execute(query)
+    print(query)
+    df = pd.DataFrame(cursor.fetchall())
+    cursor.close()
+    db_connection.close()
+
+    if printdf:
+        print(df.info)
+        # printArray(exceptions)
+
+    if df.empty or len(df) < min_df_len:
+        invalid_query = "\n{},{},empty or df len ({}) is less than 370,{},{}".format(
+            instrument_id, query, len(df), datetime.date.today(), datetime.datetime.now().time())
+        f = open("invalid_queries_{}_.txt".format("helper_functions"), "a")
+        f.write(invalid_query)
+        f.close()
+        return None
+    elif query in exceptions:
+
+        print("\n\n\t\t\t\tquery in exceptions")
+        invalid_query = "\n{},{},query in exceptions,{},{}".format(
+            instrument_id, query, datetime.date.today(), datetime.datetime.now().time())
+        f = open("invalid_queries_{}_.txt".format("helper_functions"), "a")
+        f.write(invalid_query)
+        f.close()
+        return None
+    else:
+        df.columns = ['id', 'instrument_id', 'ins_date', 'open', 'high',
+                      'low', 'close', 'volume', 'status', 'created_at', 'updated_at']
+        df = addFinalDateTimeColumns(df)
+    return df
+
+
+def topStocks(date, top=5):
+    # date = 2020-04-01
+    start_date = date - datetime.timedelta(days=30)
+    end_date = date
+
+    start_time = '03:45:00'  # converts to 9:15
+    end_time = '04:00:00'  # converts to 9:30
+    stock_list = pd.read_csv("input_csvs\stocks_data.csv")
+    averages = []
+    current_date_sums = []
+    start = stock_list.index.start
+    stop = stock_list.index.stop
+    # start = 5 # debug
+    # stop = 10 # debug
+    for i in range(start, stop):
+        instrument_id = stock_list["instrument_id"][i]
+        lot_size, name = getLotSizeAndName(instrument_id)
+        # print(instrument_id) # debug
+        temp_df = getCustomDF(end_date, end_date, start_time,
+                              end_time, instrument_id, min_df_len=0)
+        if temp_df is not None:
+            current_date_sum = temp_df['volume'].sum()
+            current_date_sums.append(current_date_sum)
+            # temp_df.to_csv("temp_df_{}.csv".format(name)) # debug
+
+            df = getCustomDF(start_date, end_date, start_time,
+                             end_time, instrument_id, min_df_len=0)
+            if df is not None:
+                sum = df['volume'].sum()
+                averages.append([instrument_id, sum/30, current_date_sum])
+                # df.to_csv("df_{}.csv".format(name))   # debug
+    df = pd.DataFrame(averages)
+    print(df)
+    if not df.empty:
+        df.columns = ["instrument_id", "average", "todays_total"]
+        df["ratio"] = df['todays_total'] / df['average']
+
+        df = df.sort_values(by=['ratio'], ascending=False)
+        df = df.reset_index(drop=True)
+        # print(df) # debug
+        return df[0:top]
+    else:
+        return None
+
+
 def getLotSizeAndName(instrument_id):
-    df = pd.read_csv("..\\csv\\id_name_lot_size.csv")
+    df = pd.read_csv("input_csvs\id_name_lot_size.csv")
     id_filter = (df["instrument_id"] == instrument_id)
 
     df = df.loc[id_filter]
     if df.empty:
         print("instrument_id {} not found".format(instrument_id))
-        return None
+        return None, None
     print(df.index)
     instrument_name = df['instrument_name'].to_string(index=False)
     lot_size = int(df['lot_size'].to_string(index=False))
     return lot_size, instrument_name
+
+
+def outputToFile(filename, message):
+    with open(filename, 'a', encoding='utf-8') as f:
+        f.write(message)
 
 
 def addCostColumn(df, cost_multiplier=0.001):
@@ -543,6 +646,13 @@ def addPNLAfterCostColumn(df):
     return df
 
 
+def addCummulativePNLColumn(df):
+    # incomplete funtion
+    df['c_pnl'][0] = df["pnl_after_cost"][0]
+    # for i in df.index+1:
+    # df['c_pnl'][i] = df['c_pnl'][i] + df['c_pnl'][i-1]
+
+
 def addAnalysisColumns(df, cost_multiplier=0.001, RPT=10000):
     df = addCostColumn(df, cost_multiplier)
     df = addRPTColumn(df, RPT)
@@ -550,16 +660,6 @@ def addAnalysisColumns(df, cost_multiplier=0.001, RPT=10000):
     df = addPositionSizeColumn(df)
     df = addPSPNLColumn(df)
     df = addPSCostColumn(df)
-    df = addPNLAfterCostColumn
-    print(df)
-# getLotSizeAndName(376)
-# convertToFinalCSV("output_5_min_candle_historic_data.csv")
-# print("Done")
-# convertToFinalCSV("output_10_min_candle_historic_data.csv")
-# print("Done")
-# convertToFinalCSV("output_15_min_candle_historic_data.csv")
-# print("Done")
-# convertToFinalCSV("output_30_min_candle_historic_data.csv")
-# print("Done")
-
-# topThreeStocks()
+    # df = addPNLAfterCostColumn(df)
+    # print(df) # debug
+    return df
