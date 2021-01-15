@@ -299,7 +299,6 @@ def recordTrade(RECORDS, Trade):
 
 
 def convertToFinalCSV(filename):
-    # filename = "output_15_min_candle_historic.csv"
     temp = pd.read_csv(filename)
     temp_records = pd.DataFrame()
     for i in temp.index:
@@ -323,7 +322,7 @@ def convertToFinalCSV(filename):
             temp_df = dictToDF(temp_dict)
             temp_records = pd.concat([temp_records, temp_df])
     temp_records = addAnalysisColumns(temp_records)
-    temp_records.to_csv("final_{}".format(filename))
+    temp_records.to_csv("final\\final_{}".format(filename))
 
 
 def dayOfTheWeek(date):
@@ -375,7 +374,7 @@ def tradingDays(date):
 
 
 def cummulativeVolume(trading_days, start_date, end_date):
-    stocks = pd.read_csv("..\\csv\\stocks_data.csv")
+    stocks = pd.read_csv("..\\csv\\id_name_lot_size.csv")
 
     start_time = datetime.time(hour=9, minute=15)
     end_time = datetime.time(hour=9, minute=30)
@@ -553,13 +552,13 @@ def topStocks(date, top=5):
 
     start_time = '03:45:00'  # converts to 9:15
     end_time = '04:00:00'  # converts to 9:30
-    stock_list = pd.read_csv("input_csvs\stocks_data.csv")
+    stock_list = pd.read_csv("input_csvs\id_name_lot_size.csv")
     averages = []
     current_date_sums = []
     start = stock_list.index.start
     stop = stock_list.index.stop
     # start = 5 # debug
-    # stop = 10 # debug
+    # stop = 5  # debug
     for i in range(start, stop):
         instrument_id = stock_list["instrument_id"][i]
         lot_size, name = getLotSizeAndName(instrument_id)
