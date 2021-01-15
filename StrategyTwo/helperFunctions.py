@@ -68,7 +68,7 @@ def getDF(instrument_id, date, min_df_len=370, printdf=False):
         return None
     elif query in exceptions:
 
-        print("\n\n\t\t\t\tquery in exceptions")
+        print("\n---------------- query in exceptions")
         invalid_query = "\n{},{},query in exceptions,{},{}".format(
             instrument_id, query, datetime.date.today(), datetime.datetime.now().time())
         f = open("invalid_queries_{}_.txt".format("helper_functions"), "a")
@@ -322,7 +322,8 @@ def convertToFinalCSV(filename):
             temp_df = dictToDF(temp_dict)
             temp_records = pd.concat([temp_records, temp_df])
     temp_records = addAnalysisColumns(temp_records)
-    temp_records.to_csv("final\\final_{}".format(filename))
+    final_filename = os.path.join('final', "final_{}".format(filename))
+    temp_records.to_csv(final_filename)
 
 
 def dayOfTheWeek(date):
@@ -374,7 +375,11 @@ def tradingDays(date):
 
 
 def cummulativeVolume(trading_days, start_date, end_date):
-    stocks = pd.read_csv("..\\csv\\id_name_lot_size.csv")
+    filename = 'id_name_lot_size.csv'
+    folder = 'csv'
+    path = os.path.join(folder, filename)
+
+    stocks = pd.read_csv(path)
 
     start_time = datetime.time(hour=9, minute=15)
     end_time = datetime.time(hour=9, minute=30)
@@ -410,7 +415,7 @@ def cummulativeVolume(trading_days, start_date, end_date):
             volumes.append([id, name, volume, start_date, end_date])
         print("\t\t{} done\n".format(name))
         if stock_index % 20 == 0:
-            print("\n\t\t\t\t\t\t\t\t\t ", stock_index)
+            print("\n---------------- ", stock_index)
         # if stock_index == 15:
         #     break
 
@@ -531,7 +536,7 @@ def getCustomDF(start_date, end_date, start_time, end_time, instrument_id, min_d
         return None
     elif query in exceptions:
 
-        print("\n\n\t\t\t\tquery in exceptions")
+        print("\n---------------- query in exceptions")
         invalid_query = "\n{},{},query in exceptions,{},{}".format(
             instrument_id, query, datetime.date.today(), datetime.datetime.now().time())
         f = open("invalid_queries_{}_.txt".format("helper_functions"), "a")
@@ -552,7 +557,12 @@ def topStocks(date, top=5):
 
     start_time = '03:45:00'  # converts to 9:15
     end_time = '04:00:00'  # converts to 9:30
-    stock_list = pd.read_csv("input_csvs\id_name_lot_size.csv")
+
+    filename = 'id_name_lot_size.csv'
+    folder = 'input_csvs'
+    path = os.path.join(folder, filename)
+
+    stock_list = pd.read_csv(path)
     averages = []
     current_date_sums = []
     start = stock_list.index.start
@@ -591,7 +601,10 @@ def topStocks(date, top=5):
 
 
 def getLotSizeAndName(instrument_id):
-    df = pd.read_csv("input_csvs\id_name_lot_size.csv")
+    filename = 'id_name_lot_size.csv'
+    folder = 'input_csvs'
+    path = os.path.join(folder, filename)
+    df = pd.read_csv(path)
     id_filter = (df["instrument_id"] == instrument_id)
 
     df = df.loc[id_filter]
