@@ -1,6 +1,7 @@
 import math
 import pandas as pd
-import mysql.connector as mysql
+# import mysql.connector as mysql
+import pymysql.cursors
 import datetime
 from datetime import timedelta
 import os
@@ -31,7 +32,7 @@ def getDF(instrument_id, date, min_df_len=370, printdf=False):
     # user password
     PASSWORD = "stockdata@data"
     # connect to MySQL server
-    db_connection = mysql.connect(host=HOST, user=USER, password=PASSWORD)
+    db_connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD)
     print("Connected to:", db_connection.get_server_info())
     cursor = db_connection.cursor()  # get the cursor
     cursor.execute("use stock_production;")

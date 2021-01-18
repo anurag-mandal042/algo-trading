@@ -10,9 +10,9 @@ import datetime
 # minutes = 15
 # NMDC
 instrument_id = 130
-dd = 9
+dd = 3
 mm = 1
-yy = 2018
+yy = 2019
 minutes = 15
 lot_size, instrument_name = hf.getLotSizeAndName(instrument_id)
 date = datetime.date(day=dd, month=mm, year=yy)

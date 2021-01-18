@@ -1,4 +1,5 @@
-import mysql.connector as mysql
+# import mysql.connector as mysql
+import pymysql.cursors
 import pandas as pd
 from datetime import timedelta
 import datetime
@@ -40,7 +41,7 @@ def getDF(instrument_id, date, min_df_len=370, printdf=False):
     # user password
     PASSWORD = "stockdata@data"
     # connect to MySQL server
-    db_connection = mysql.connect(host=HOST, user=USER, password=PASSWORD)
+    db_connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD)
     print("Connected to:", db_connection.get_server_info())
     cursor = db_connection.cursor()  # get the cursor
     cursor.execute("use stock_production;")
@@ -510,7 +511,7 @@ def getCustomDF(start_date, end_date, start_time, end_time, instrument_id, min_d
     # user password
     PASSWORD = "stockdata@data"
     # connect to MySQL server
-    db_connection = mysql.connect(host=HOST, user=USER, password=PASSWORD)
+    db_connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD)
     print("Connected to:", db_connection.get_server_info())
     cursor = db_connection.cursor()  # get the cursor
     cursor.execute("use stock_production;")
@@ -611,7 +612,7 @@ def getLotSizeAndName(instrument_id):
     if df.empty:
         print("instrument_id {} not found".format(instrument_id))
         return None, None
-    print(df.index)
+    # print(df.index)
     instrument_name = df['instrument_name'].to_string(index=False)
     lot_size = int(df['lot_size'].to_string(index=False))
     return lot_size, instrument_name

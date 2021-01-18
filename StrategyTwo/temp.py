@@ -34,8 +34,8 @@ def func(date, top, minutes):
 
 
 dates = []
-start_ddmmyy = datetime.date(year=2019, month=1, day=1)
-end_ddmmyy = datetime.date(year=2019, month=1, day=2)  # debug
+start_ddmmyy = datetime.date(year=2019, month=3, day=12)
+end_ddmmyy = datetime.date(year=2019, month=12, day=30)  # debug
 # end_ddmmyy = datetime.date(year=2020, month=1, day=1)
 print(start_ddmmyy, end_ddmmyy)
 current_date = start_ddmmyy
@@ -56,13 +56,14 @@ threads = []
 for i in range(len(dates)):
     if (i+1) % 3 != 0:
         date = dates[i]
-        # func(date, top, minutes)
-        t = threading.Thread(target=func, args=[date, top, minutes])
-        t.start()
-        threads.append(t)
-    elif (i+1) % 3 == 0:
-        for thread in threads:
-            thread.join()
+        func(date, top, minutes)
+        # threading implementation
+        # t = threading.Thread(target=func, args=[date, top, minutes])
+        # t.start()
+        # threads.append(t)
+    # elif (i+1) % 3 == 0:
+    #     for thread in threads:
+    #         thread.join()
 
     # if i == 2:        # debug
     #     break
@@ -73,6 +74,5 @@ print(t1)
 t3 = t2 - t1
 print(t3)
 # print(t2 - t1)
-'01: 29: 25.579790'
-'00: 27: 21.211490'
+
 # print(top_three_stocks)
