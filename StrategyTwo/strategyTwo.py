@@ -53,14 +53,14 @@ def getDF(instrument_id, date, min_df_len=370, printdf=False):
                       "low", "close", "volume", "status", "created_at", "updated_at"]
         duplicates = len(
             df)-len(df.drop_duplicates(subset=["open", "high", "low", "close"]))
-        print("({}) duplicates dropped".format(duplicates))
-    if duplicates > int(len(df) / 2):
-        invalid_query = "\n{},{}, ({}) duplicates found,{},{}".format(
-            instrument_id, query, duplicates, datetime.date.today(), datetime.datetime.now().time())
-        f = open("invalid_queries_{}.txt".format("stratTwogetDF"), "a")
-        f.write(invalid_query)
-        f.close()
-        return None
+        if duplicates > int(len(df) / 2):
+            print("({}) duplicates dropped".format(duplicates))
+            invalid_query = "\n{},{}, ({}) duplicates found,{},{}".format(
+                instrument_id, query, duplicates, datetime.date.today(), datetime.datetime.now().time())
+            f = open("invalid_queries_{}.txt".format("stratTwogetDF"), "a")
+            f.write(invalid_query)
+            f.close()
+            return None
     if df.empty or len(df) < min_df_len:
         invalid_query = "\n{},{},empty or df len ({}) is less than 370,{},{}".format(
             instrument_id, query, len(df), datetime.date.today(), datetime.datetime.now().time())
