@@ -35,7 +35,7 @@ def func(date, top, minutes):
 
 
 dates = []
-start_ddmmyy = datetime.date(year=2016, month=1, day=1)
+start_ddmmyy = datetime.date(year=2016, month=4, day=1)
 end_ddmmyy = datetime.date(year=2019, month=1, day=1)
 # end_ddmmyy = datetime.date(year=2020, month=1, day=1) # debug
 print(start_ddmmyy, end_ddmmyy)
