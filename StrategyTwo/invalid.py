@@ -12,7 +12,10 @@ exceptions = [
     # Stock:   NTPC ohlc same throughout the day
     "SELECT * FROM instrument_details where date(ins_date) = '2016-02-26' and instrument_id = 128",
     # Stock:   NTPC ohlc same throughout the day
-    "SELECT * FROM instrument_details where date(ins_date) = '2016-05-06' and instrument_id = 128"
+    "SELECT * FROM instrument_details where date(ins_date) = '2016-05-06' and instrument_id = 128",
+    # Stock:   NTPC ohlc same throughout the day
+    "SELECT * FROM instrument_details where date(ins_date) = '2016-01-25' and instrument_id = 128"
+
 ]
 [
     # # Stock:  SBIN
