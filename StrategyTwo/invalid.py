@@ -9,6 +9,9 @@ exceptions = [
     "SELECT * FROM instrument_details where date(ins_date) = '2020-06-22' and instrument_id = 282",
     # Stock:  INFY need to be checked
     "SELECT * FROM instrument_details where date(ins_date) = '2019-10-22' and instrument_id = 224",
+    # Stock:   NTPC ohlc same throughout the day
+    "SELECT * FROM instrument_details where date(ins_date) = '2016-02-26' and instrument_id = 128",
+
 ]
 [
     # # Stock:  SBIN
