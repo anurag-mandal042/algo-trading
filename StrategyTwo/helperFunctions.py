@@ -322,7 +322,7 @@ def convertToFinalCSV(filename):
             }
             temp_df = dictToDF(temp_dict)
             temp_records = pd.concat([temp_records, temp_df])
-    temp_records = addAnalysisColumns(temp_records)
+    temp_records = addPSColumns(temp_records)
     final_filename = os.path.join('final', "final_{}".format(filename))
     temp_records.to_csv(final_filename)
 
@@ -641,13 +641,13 @@ def addCostColumn(df, cost_multiplier=0.001):
     return df
 
 
-def addRPTColumn(df, RPT=10000):
+def addPSRPTColumn(df, RPT=10000):
     rpt = [RPT] * len(df.index)
     df["RPT"] = rpt
     return df
 
 
-def addDifferenceColumn(df):
+def addPSDifferenceColumn(df):
     df["diff"] = abs(df["entry_at"] - df["initial_sl"])
     return df
 
@@ -667,25 +667,48 @@ def addPSCostColumn(df):
     return df
 
 
-def addPNLAfterCostColumn(df):
-    df['pnl_after_cost'] = df['PS_PNL'] - df['PS_cost']
+def addPSPNLAfterCostColumn(df):
+    df['PS_pnl_a_cost'] = df['PS_PNL'] - df['PS_cost']
     return df
 
 
 def addCummulativePNLColumn(df):
     # incomplete funtion
-    df['c_pnl'][0] = df["pnl_after_cost"][0]
+    df['PS_c_pnl'][0] = df["PS_pnl_a_cost"][0]
     # for i in df.index+1:
     # df['c_pnl'][i] = df['c_pnl'][i] + df['c_pnl'][i-1]
 
 
-def addAnalysisColumns(df, cost_multiplier=0.001, RPT=10000):
+def addPSColumns(df, cost_multiplier=0.001, RPT=10000):
     df = addCostColumn(df, cost_multiplier)
-    df = addRPTColumn(df, RPT)
-    df = addDifferenceColumn(df)
+    df = addPSRPTColumn(df, RPT)
+    df = addPSDifferenceColumn(df)
     df = addPositionSizeColumn(df)
     df = addPSPNLColumn(df)
     df = addPSCostColumn(df)
-    # df = addPNLAfterCostColumn(df)
+    df = addPSPNLAfterCostColumn(df)
     # print(df) # debug
+    return df
+
+
+def addLSLotCostColumn(df):
+    df["LS_lot_cost"] = df['cost'] * df["lot_size"]
+    return df
+
+
+def addLSPNLColumn(df):
+    df["LS_pnl"] = df["lot_size"]*df['pnl']
+    return df
+
+
+def addLSPNLAfterCost(df):
+    df['LS_pnl_after_cost'] = df['LS_pnl'] - df['LS_lot_cost']
+    return df
+
+
+def addLSColumns(df, cost_multiplier=0.001):
+    df = addCostColumn(df, cost_multiplier)
+    df = addLSLotCostColumn(df)
+    df = addLSPNLColumn(df)
+    df = addLSPNLAfterCost(df)
     return df
